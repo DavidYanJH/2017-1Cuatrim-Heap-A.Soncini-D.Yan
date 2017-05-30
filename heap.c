@@ -49,10 +49,10 @@ void downheap(heap_t* heap, size_t actual)
 	size_t hijo_izq = obtener_hijo_izquierdo(actual);
 	size_t hijo_der = obtener_hijo_derecho(actual);
 	// Caso sin hijo izquierdo valido es una condición de finalizar la recursión
-	if (hijo_izq > heap->cantidad) return;
+	if (hijo_izq >= heap->cantidad) return;
 	// Caso sin hijo derecho valido, swappeo según necesidad con hijo izquierdo
 	// luego finalizo la recursión
-	if (hijo_der > heap->cantidad) {
+	if (hijo_der >= heap->cantidad) {
 		if (heap->cmp(heap->datos[hijo_izq], heap->datos[actual]) > 0) {
 			swap_vectorial(heap->datos, hijo_izq, actual);
 			return;
