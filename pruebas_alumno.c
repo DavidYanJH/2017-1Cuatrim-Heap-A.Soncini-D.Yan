@@ -77,12 +77,15 @@ void prueba_heap_insersion(void) {
 	maximo = heap_desencolar(heap);
 	print_test("Prueba heap desencolar maximo es 'c'", (strcmpaux(maximo,"c") == 0));
 	print_test("Prueba heap la cantidad de elementos es 2", heap_cantidad(heap) == 2);
+	free(maximo);
 	maximo = heap_desencolar(heap);
 	print_test("Prueba heap desencolar maximo es 'b'", (strcmpaux(maximo,"b") == 0));
 	print_test("Prueba heap la cantidad de elementos es 1", heap_cantidad(heap) == 1);
+	free(maximo);
 	maximo = heap_desencolar(heap);
 	print_test("Prueba heap desencolar maximo es 'a'", (strcmpaux(maximo,"a") == 0));
 	print_test("Prueba heap la cantidad de elementos es 0", heap_cantidad(heap) == 0);
+	free(maximo);
 
 	heap_destruir(heap, free);
 }
