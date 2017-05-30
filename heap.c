@@ -19,11 +19,11 @@ size_t obtener_padre(size_t index) {
 	return (index - 1) / 2;
 }
 
-size_t obtener_hijo_izquierdo(size_t index) {	// Determinar si van a ser de utilidad
+size_t obtener_hijo_izquierdo(size_t index) {	
 	return index * 2 + 1;
 }
 
-size_t obtener_hijo_derecho(size_t index) {	// Determinar si van a ser de utilidad
+size_t obtener_hijo_derecho(size_t index) {	
 	return index * 2 + 2;
 }
 
@@ -45,28 +45,18 @@ void upheap(heap_t* heap, size_t actual) {
 
 void downheap(heap_t* heap, size_t actual)
 {
-	if (actual == heap->cantidad) return;
+	size_t maximo = actual;
 	size_t hijo_izq = obtener_hijo_izquierdo(actual);
 	size_t hijo_der = obtener_hijo_derecho(actual);
-	// Caso sin hijo izquierdo valido es una condición de finalizar la recursión
-	if (hijo_izq >= heap->cantidad) return;
-	// Caso sin hijo derecho valido, swappeo según necesidad con hijo izquierdo
-	// luego finalizo la recursión
-	if (hijo_der >= heap->cantidad) {
-		if (heap->cmp(heap->datos[hijo_izq], heap->datos[actual]) > 0) {
-			swap_vectorial(heap->datos, hijo_izq, actual);
-			return;
-		}
-	}
-	// Caso con hijos izquierdo e hijo derecho, swappeo con el mayor de los hijos 
-	// según necesidad
-	if (heap->cmp(heap->datos[hijo_der], heap->datos[hijo_izq]) > 0) {
-		swap_vectorial(heap->datos, hijo_der, actual);
-		downheap(heap, hijo_der);
-	}
-	else {
-		swap_vectorial(heap->datos, hijo_izq, actual);
-		downheap(heap, hijo_izq);
+	if (hijo_izq < heap->cantidad)
+		if (heap->cmp(heap->datos[hijo_izq], heap->datos[maximo]) > 0)
+			maximo = hijo_izq;
+	if (hijo_der < heap->cantidad)
+		if (heap->cmp(heap->datos[hijo_der], heap->datos[maximo]) > 0)
+			maximo = hijo_der;
+	if (maximo != actual) {
+		swap_vectorial(heap->datos, maximo, actual);
+		downheap(heap, maximo);
 	}
 }
 
@@ -155,4 +145,19 @@ void* heap_desencolar(heap_t* heap)
 	swap_vectorial(heap->datos, 0, heap->cantidad);
 	downheap(heap, 0);
 	return heap->datos[heap->cantidad];
+}
+
+
+heap_t* heap_crear_arr(void* arreglo[], size_t n, cmp_func_t cmp)
+{
+	heap_t* heap = heap_crear(cmp);
+	if (!heap) return NULL;
+	for (size_t index = 0; index < n; ++index)
+		if (!heap_encolar(heap, arreglo[index])) break;
+	if (heap->cantidad == n) return heap;
+	// En caso de sin inicializar el heap con la totalidad de elementos del arreglo 
+	// debido a la falta de memoria en ejecución debería retorna NULL... 
+	free(heap->datos);
+	free(heap);
+	return NULL;
 }
