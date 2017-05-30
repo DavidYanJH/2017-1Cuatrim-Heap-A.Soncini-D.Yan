@@ -5,8 +5,8 @@ PRUEBAS = pruebas_alumno
 EXE = pruebas
 
 
-all: tda testing.o main.o pruebas.o vector.o
-	$(CC) $(CFLAGS) -o $(EXE) $(PRUEBAS).o $(TDA).o testing.o main.o vector_dinamico.o
+all: tda testing.o main.o pruebas.o
+	$(CC) $(CFLAGS) -o $(EXE) $(PRUEBAS).o $(TDA).o testing.o main.o
 
 tda:
 	$(CC) $(CFLAGS) $(TDA).c -c
@@ -19,9 +19,6 @@ main.o:
 
 pruebas.o:
 	$(CC) $(CFLAGS) $(PRUEBAS).c -c
-
-vector.o:
-	$(CC) $(CFLAGS) vector_dinamico.c -c
 
 clean:
 	rm $(EXE) *.o
