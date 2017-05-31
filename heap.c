@@ -42,23 +42,30 @@ void upheap(heap_t* heap, size_t actual) {
 	}
 }
 
-
-void downheap(heap_t* heap, size_t actual)
+void downheap(void* array[], size_t actual, size_t lenght, cmp_func_t cmp)
 {
 	size_t maximo = actual;
 	size_t hijo_izq = obtener_hijo_izquierdo(actual);
 	size_t hijo_der = obtener_hijo_derecho(actual);
-	if (hijo_izq < heap->cantidad)
-		if (heap->cmp(heap->datos[hijo_izq], heap->datos[maximo]) > 0)
+	if (hijo_izq < lenght)
+		if (cmp(array[hijo_izq], array[maximo]) > 0)
 			maximo = hijo_izq;
-	if (hijo_der < heap->cantidad)
-		if (heap->cmp(heap->datos[hijo_der], heap->datos[maximo]) > 0)
+	if (hijo_der < lenght)
+		if (cmp(array[hijo_der], array[maximo]) > 0)
 			maximo = hijo_der;
 	if (maximo != actual) {
-		swap_vectorial(heap->datos, maximo, actual);
-		downheap(heap, maximo);
+		swap_vectorial(array, maximo, actual);
+		downheap(array, maximo, lenght, cmp);
 	}
 }
+
+void max_heapify(void* array[], size_t lenght, cmp_func_t cmp)
+{
+	size_t nodo_inicial = lenght/2-1;
+	for (size_t index = nodo_inicial; index >= 0; --index)
+		downheap(array, index, lenght, cmp);
+}
+
 
 bool heap_redimensionar(heap_t* heap) 
 {
@@ -143,7 +150,7 @@ void* heap_desencolar(heap_t* heap)
 	--heap->cantidad;
 	if (heap->cantidad == 0) return heap->datos[0];
 	swap_vectorial(heap->datos, 0, heap->cantidad);
-	downheap(heap, 0);
+	downheap(heap->datos, 0, heap->cantidad, heap->cmp);
 	return heap->datos[heap->cantidad];
 }
 
@@ -154,10 +161,24 @@ heap_t* heap_crear_arr(void* arreglo[], size_t n, cmp_func_t cmp)
 	if (!heap) return NULL;
 	for (size_t index = 0; index < n; ++index)
 		if (!heap_encolar(heap, arreglo[index])) break;
+	// En caso de haber encolado correctamente la totalidad de elementos del
+	// arreglo regresa el puntero al heap creado
 	if (heap->cantidad == n) return heap;
 	// En caso de sin inicializar el heap con la totalidad de elementos del arreglo 
 	// debido a la falta de memoria en ejecución debería retorna NULL... 
 	free(heap->datos);
 	free(heap);
 	return NULL;
+}
+
+
+void heap_sort(void* array[], size_t lenght, cmp_func_t cmp)
+{
+	if (lenght <= 1) return;
+	max_heapify(array, lenght, cmp);
+	for (size_t index = lenght-1; index > 0; --index)
+	{
+		swap_vectorial(array, 0, index);
+		downheap(array, 0, index-1, cmp);
+	}
 }
