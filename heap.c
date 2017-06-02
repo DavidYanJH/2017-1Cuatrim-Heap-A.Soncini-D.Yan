@@ -62,8 +62,10 @@ void downheap(void* array[], size_t actual, size_t lenght, cmp_func_t cmp)
 void max_heapify(void* array[], size_t lenght, cmp_func_t cmp)
 {
 	size_t nodo_inicial = lenght/2-1;
-	for (size_t index = nodo_inicial; index >= 0; --index)
+	for (size_t index = nodo_inicial; index >= 0; --index) {
 		downheap(array, index, lenght, cmp);
+		if (index == 0) break;
+	}
 }
 
 bool heap_redimensionar(heap_t* heap) 

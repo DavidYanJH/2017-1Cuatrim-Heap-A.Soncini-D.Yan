@@ -19,6 +19,9 @@ int strcmpaux (const void* a, const void* b) {
 	else return 0;
 }
 
+int strcmpaux2 (const void* a, const void* b) {
+	return strcmp((char*) a, (char*) b);
+}
 
  /* ******************************************************************
  *                        PRUEBAS UNITARIAS
@@ -154,56 +157,16 @@ void prueba_heapify(int size_test) {
 	heap_destruir(heap, free);
 }
 
-void prueba_heapsort(int size_test) {
-	srand((int) time(NULL));
-	size_t i;
-	bool OK = true;
-	char* straux;
-	void* strvec[size_test];
-	for (i = 0; i < size_test; i++) {
-		char strtmp[20];
-		sprintf(strtmp, "%d", (int) rand());
-		straux = malloc(sizeof(char) * strlen(strtmp) + 1);
-		strcpy(straux, strtmp);
-		printf("%s\n",straux);
-		strvec[i] = straux;
-	}
-	printf("Comienzo del heapsort\n");
-	heap_sort(strvec, size_test, strcmpaux);
-	i = 0;
-	while (i < size_test - 2 && OK) {
-		OK  = (strcmpaux(strvec[i], strvec[i + 1]) <= 0);
-		printf("%s\n",(char*) strvec[i]);
-		free(strvec[i++]);
-	}
-	free(strvec[i++]);
-	free(strvec[i]);
-	print_test("Se ordena correctamente un arreglo inicialmente desordenado", OK);
-}
-
-void prueba_heapsort2() {
+void prueba_heapsort() {
 	size_t i = 0;
 	bool OK = true;
-	char* strvec[] = {"123", "321", "222", "543", "1", "9999", "472", "6", "90", "100"};
-	void* strvec2[10];
-	for (; i < 9; i++) {
-		char* straux = malloc(sizeof(char) * strlen(strvec[i]) + 1);
-		strcpy(straux, (char*) strvec[i]);
-		strvec2[i] = straux;
-		printf("%s\n",(char*) strvec2[i]);
-	}
-	//void* strvec[size_test];
-	printf("Comienzo del heapsort\n");
-	heap_sort(strvec2, 10, strcmpaux);
+	char* strvec[] = {"9", "8", "7", "2", "1", "0", "6", "5", "4", "3"};
+	heap_sort((void*) strvec, 10, strcmpaux2);
 	i = 0;
 	while (i < 10 - 2 && OK) {
-		OK  = (strcmpaux(strvec2[i], strvec2[i + 1]) <= 0);
-		printf("%s\n",(char*) strvec2[i]);
-		free(strvec2[i]);
+		OK  = (strcmpaux2(strvec[i], strvec[i + 1]) <= 0);
 		i++;
 	}
-	free(strvec2[i++]);
-	free(strvec2[i]);
 	print_test("Se ordena correctamente un arreglo inicialmente desordenado", OK);
 }
 
@@ -212,6 +175,5 @@ void pruebas_heap_alumno(void) {
 	prueba_heap_insersion();
 	prueba_heap_redimension_volumen(5000);
 	prueba_heapify(5000);
-	//prueba_heapsort(30);
-	prueba_heapsort2();
+	prueba_heapsort();
 }
