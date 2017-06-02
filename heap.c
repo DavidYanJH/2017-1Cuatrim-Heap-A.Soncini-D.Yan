@@ -44,6 +44,7 @@ void upheap(heap_t* heap, size_t actual) {
 
 void downheap(void* array[], size_t actual, size_t lenght, cmp_func_t cmp)
 {
+	if (actual == lenght) return;
 	size_t maximo = actual;
 	size_t hijo_izq = obtener_hijo_izquierdo(actual);
 	size_t hijo_der = obtener_hijo_derecho(actual);
@@ -62,9 +63,20 @@ void downheap(void* array[], size_t actual, size_t lenght, cmp_func_t cmp)
 void max_heapify(void* array[], size_t lenght, cmp_func_t cmp)
 {
 	size_t nodo_inicial = lenght/2-1;
-	for (size_t index = nodo_inicial; index >= 0; --index) {
+	for (size_t index = nodo_inicial; index > 0; index--)
 		downheap(array, index, lenght, cmp);
-		if (index == 0) break;
+	downheap(array, 0, lenght, cmp);
+}
+
+
+void heap_sort(void* array[], size_t lenght, cmp_func_t cmp)
+{
+	if (lenght <= 1) return;
+	max_heapify(array, lenght, cmp);
+	for (size_t index = lenght-1; index > 0; --index)
+	{
+		swap_vectorial(array, 0, index);
+		downheap(array, 0, index-1, cmp);
 	}
 }
 
@@ -170,16 +182,4 @@ heap_t* heap_crear_arr(void* arreglo[], size_t n, cmp_func_t cmp)
 	free(heap->datos);
 	free(heap);
 	return NULL;
-}
-
-
-void heap_sort(void* array[], size_t lenght, cmp_func_t cmp)
-{
-	if (lenght <= 1) return;
-	max_heapify(array, lenght, cmp);
-	for (size_t index = lenght-1; index > 0; --index)
-	{
-		swap_vectorial(array, 0, index);
-		downheap(array, 0, index-1, cmp);
-	}
 }
