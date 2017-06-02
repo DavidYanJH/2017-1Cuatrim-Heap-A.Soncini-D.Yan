@@ -66,7 +66,6 @@ void max_heapify(void* array[], size_t lenght, cmp_func_t cmp)
 		downheap(array, index, lenght, cmp);
 }
 
-
 bool heap_redimensionar(heap_t* heap) 
 {
 	size_t new_capacidad = heap->capacidad * COEF_REDIM;

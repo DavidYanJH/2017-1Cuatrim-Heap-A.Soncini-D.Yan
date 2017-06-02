@@ -1,5 +1,7 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "heap.h"
 #include "testing.h"
 
@@ -90,7 +92,126 @@ void prueba_heap_insersion(void) {
 	heap_destruir(heap, free);
 }
 
+void prueba_heap_redimension_volumen(int size_test) {
+	srand((int) time(NULL));
+	int i;
+	heap_t* heap = heap_crear(strcmpaux);
+	bool OK = true;
+	char* straux;
+	char* straux2;
+	for (i = 0; i < size_test; i++) {
+		char strtmp[20];
+		sprintf(strtmp, "%d", (int) rand());
+
+		straux = malloc(sizeof(char) * strlen(strtmp) + 1);
+		strcpy(straux, strtmp);
+		heap_encolar(heap, straux);
+	}
+
+	print_test("Se encolaron 5000 elementos", heap_cantidad(heap) == size_test);
+
+	straux = heap_desencolar(heap);
+	while (!heap_esta_vacio(heap) && OK) {
+		straux2 = heap_desencolar(heap);
+		OK = (strcmpaux(straux, straux2) > 0);
+		free(straux);
+		straux = straux2;
+	}
+	free(straux);
+	print_test("Se desencolaron todos los elementos correctamente", OK);
+	print_test("El heap ahora esta vacio", heap_esta_vacio(heap));
+	heap_destruir(heap, free);
+}
+
+void prueba_heapify(int size_test) {
+	srand((int) time(NULL));
+	bool OK = true;
+	char* straux;
+	char* straux2;
+	void* strvec[size_test];
+	for (size_t i = 0; i < size_test; i++) {
+		char strtmp[20];
+		sprintf(strtmp, "%d", (int) rand());
+		straux = malloc(sizeof(char) * strlen(strtmp) + 1);
+		strcpy(straux, strtmp);
+		strvec[i] = straux;
+	}
+	heap_t* heap = heap_crear_arr(strvec, size_test, strcmpaux);
+
+	print_test("Heap creado a partir de un arreglo", heap);
+	print_test("Tamaño de heap creado es igual a tamaño de arreglo inicial", heap_cantidad(heap) == size_test);
+
+	straux = heap_desencolar(heap);
+	while (!heap_esta_vacio(heap) && OK) {
+		straux2 = heap_desencolar(heap);
+		OK = (strcmpaux(straux, straux2) > 0);
+		free(straux);
+		straux = straux2;
+	}
+	free(straux);
+	print_test("Se desencolaron todos los elementos correctamente", OK);
+	print_test("El heap ahora esta vacio", heap_esta_vacio(heap));
+	heap_destruir(heap, free);
+}
+
+void prueba_heapsort(int size_test) {
+	srand((int) time(NULL));
+	size_t i;
+	bool OK = true;
+	char* straux;
+	void* strvec[size_test];
+	for (i = 0; i < size_test; i++) {
+		char strtmp[20];
+		sprintf(strtmp, "%d", (int) rand());
+		straux = malloc(sizeof(char) * strlen(strtmp) + 1);
+		strcpy(straux, strtmp);
+		printf("%s\n",straux);
+		strvec[i] = straux;
+	}
+	printf("Comienzo del heapsort\n");
+	heap_sort(strvec, size_test, strcmpaux);
+	i = 0;
+	while (i < size_test - 2 && OK) {
+		OK  = (strcmpaux(strvec[i], strvec[i + 1]) <= 0);
+		printf("%s\n",(char*) strvec[i]);
+		free(strvec[i++]);
+	}
+	free(strvec[i++]);
+	free(strvec[i]);
+	print_test("Se ordena correctamente un arreglo inicialmente desordenado", OK);
+}
+
+void prueba_heapsort2() {
+	size_t i = 0;
+	bool OK = true;
+	char* strvec[] = {"123", "321", "222", "543", "1", "9999", "472", "6", "90", "100"};
+	void* strvec2[10];
+	for (; i < 9; i++) {
+		char* straux = malloc(sizeof(char) * strlen(strvec[i]) + 1);
+		strcpy(straux, (char*) strvec[i]);
+		strvec2[i] = straux;
+		printf("%s\n",(char*) strvec2[i]);
+	}
+	//void* strvec[size_test];
+	printf("Comienzo del heapsort\n");
+	heap_sort(strvec2, 10, strcmpaux);
+	i = 0;
+	while (i < 10 - 2 && OK) {
+		OK  = (strcmpaux(strvec2[i], strvec2[i + 1]) <= 0);
+		printf("%s\n",(char*) strvec2[i]);
+		free(strvec2[i]);
+		i++;
+	}
+	free(strvec2[i++]);
+	free(strvec2[i]);
+	print_test("Se ordena correctamente un arreglo inicialmente desordenado", OK);
+}
+
 void pruebas_heap_alumno(void) {
 	prueba_crear_heap_vacio();
 	prueba_heap_insersion();
+	prueba_heap_redimension_volumen(5000);
+	prueba_heapify(5000);
+	//prueba_heapsort(30);
+	prueba_heapsort2();
 }
