@@ -4,6 +4,7 @@
 
 #define CAPAC_INICIAL 36
 #define COEF_REDIM 2
+#define BASE_REDUC 4
 
 struct heap {
 	void** datos;
@@ -33,7 +34,17 @@ void swap_vectorial(void** vector, size_t x,  size_t y) {
 	vector[y] = aux;
 }
 
-void upheap(heap_t* heap, size_t actual) {
+bool heap_redimensionar(heap_t* heap, size_t new_capacidad) 
+{
+	void** new_datos = realloc(heap->datos, sizeof(void*) * new_capacidad);
+	if (!new_datos) return false;
+	heap->datos = new_datos;
+	heap->capacidad = new_capacidad;
+	return true;
+}
+
+void upheap(heap_t* heap, size_t actual) 
+{
 	if (actual == 0) return;
 	size_t padre = obtener_padre(actual);
 	if (heap->cmp(heap->datos[actual], heap->datos[padre]) > 0) {
@@ -63,7 +74,7 @@ void downheap(void* array[], size_t actual, size_t lenght, cmp_func_t cmp)
 void max_heapify(void* array[], size_t lenght, cmp_func_t cmp)
 {
 	size_t nodo_inicial = lenght/2-1;
-	for (size_t index = nodo_inicial; index > 0; --index)
+	for (size_t index = nodo_inicial; index > 0; index--)
 		downheap(array, index, lenght, cmp);
 	downheap(array, 0, lenght, cmp);
 }
@@ -80,15 +91,7 @@ void heap_sort(void* array[], size_t lenght, cmp_func_t cmp)
 	}
 }
 
-bool heap_redimensionar(heap_t* heap) 
-{
-	size_t new_capacidad = heap->capacidad * COEF_REDIM;
-	void** new_datos = realloc(heap->datos, sizeof(void*) * new_capacidad);
-	if (!new_datos) return false;
-	heap->datos = new_datos;
-	heap->capacidad = new_capacidad;
-	return true;
-}
+
 
 /* ******************************************************************
  *                        PRIMITIVAS DEL HEAP
@@ -145,17 +148,19 @@ void heap_destruir(heap_t* heap, void destruir_elem(void* e))
 }
 
 
-bool heap_encolar(heap_t* heap, void* elem) {
+bool heap_encolar(heap_t* heap, void* elem) 
+{
 	if (!heap || !elem) return false;
 	if (heap->cantidad == heap->capacidad) {
-		if (!heap_redimensionar(heap)) 
-			return false;
+		size_t new_capacidad = heap->capacidad * COEF_REDIM;
+		if (!heap_redimensionar(heap, new_capacidad)) return false;
 	}
 	heap->datos[heap->cantidad] = elem;
 	upheap(heap, heap->cantidad);
 	++heap->cantidad;
 	return true;
 }
+
 
 void* heap_desencolar(heap_t* heap)
 {
@@ -164,6 +169,12 @@ void* heap_desencolar(heap_t* heap)
 	if (heap->cantidad == 0) return heap->datos[0];
 	swap_vectorial(heap->datos, 0, heap->cantidad);
 	downheap(heap->datos, 0, heap->cantidad, heap->cmp);
+	// Evaluación de la Necesidad de Redimensionar - Reducir la Capacidad del Heap cuando 
+	// la cantidad de elementos sea menor o igual a un cuarto (25%) de la capacidad actual...
+	if (heap->capacidad > CAPAC_INICIAL && (heap->cantidad * BASE_REDUC) <= heap->capacidad) {
+		size_t new_capacidad = heap->capacidad / COEF_REDIM;
+		heap_redimensionar(heap, new_capacidad);
+	}
 	return heap->datos[heap->cantidad];
 }
 
@@ -172,13 +183,25 @@ heap_t* heap_crear_arr(void* arreglo[], size_t n, cmp_func_t cmp)
 {
 	heap_t* heap = heap_crear(cmp);
 	if (!heap) return NULL;
-	for (size_t index = 0; index < n; ++index)
-		if (!heap_encolar(heap, arreglo[index])) break;
-	// En caso de haber encolado correctamente la totalidad de elementos del
-	// arreglo regresa el puntero al heap creado
-	if (heap->cantidad == n) return heap;
+	for (size_t index = 0; index < n; ++index) 
+	{
+		if (heap->cantidad == heap->capacidad) {
+			size_t new_capacidad = heap->capacidad * COEF_REDIM;
+			if (!heap_redimensionar(heap, new_capacidad)) break;
+		}
+		heap->datos[index] = arreglo[index];
+		++heap->cantidad;
+	}
+	// En caso de haber insertado correctamente la totalidad de elementos del arreglo
+	// se realiza un heapify del array heap->datos con el fin de adquirir la forma de 
+	// un heap, luego finalmente se regresa el puntero del heap creado...
+	if (heap->cantidad == n) {
+		max_heapify(heap->datos, heap->cantidad, heap->cmp);
+		return heap;
+	}
 	// En caso de sin inicializar el heap con la totalidad de elementos del arreglo 
-	// debido a la falta de memoria en ejecución debería retorna NULL... 
+	// debido a la falta de memoria en ejecución deberia liberar las memorias utilizadas
+	// debidamente, finalmente retorna un NULL...
 	free(heap->datos);
 	free(heap);
 	return NULL;
