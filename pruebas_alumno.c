@@ -126,7 +126,7 @@ void prueba_heap_redimension_volumen(int size_test) {
 	heap_destruir(heap, free);
 }
 
-void prueba_heapify(int size_test) {
+void prueba_heap_crear_arr(int size_test) {
 	srand((int) time(NULL));
 	bool OK = true;
 	char* straux;
@@ -160,10 +160,10 @@ void prueba_heapify(int size_test) {
 void prueba_heapsort() {
 	size_t i = 0;
 	bool OK = true;
-	char* strvec[] = {"9", "8", "7", "2", "1", "0", "6", "5", "4", "3"};
-	heap_sort((void*) strvec, 10, strcmpaux2);
+	char* strvec[] = {"9", "8", "7", "2", "1", "0", "6", "5", "4", "3", "110"};
+	heap_sort((void*) strvec, 11, strcmpaux2);
 	i = 0;
-	while (i < 10 - 2 && OK) {
+	while (i < 11 - 2 && OK) {
 		OK  = (strcmpaux2(strvec[i], strvec[i + 1]) <= 0);
 		i++;
 	}
@@ -174,6 +174,6 @@ void pruebas_heap_alumno(void) {
 	prueba_crear_heap_vacio();
 	prueba_heap_insersion();
 	prueba_heap_redimension_volumen(5000);
-	prueba_heapify(5000);
+	prueba_heap_crear_arr(5000);
 	prueba_heapsort();
 }

@@ -63,7 +63,7 @@ void downheap(void* array[], size_t actual, size_t lenght, cmp_func_t cmp)
 void max_heapify(void* array[], size_t lenght, cmp_func_t cmp)
 {
 	size_t nodo_inicial = lenght/2-1;
-	for (size_t index = nodo_inicial; index > 0; index--)
+	for (size_t index = nodo_inicial; index > 0; --index)
 		downheap(array, index, lenght, cmp);
 	downheap(array, 0, lenght, cmp);
 }
@@ -76,7 +76,7 @@ void heap_sort(void* array[], size_t lenght, cmp_func_t cmp)
 	for (size_t index = lenght-1; index > 0; --index)
 	{
 		swap_vectorial(array, 0, index);
-		downheap(array, 0, index-1, cmp);
+		downheap(array, 0, index, cmp);
 	}
 }
 
